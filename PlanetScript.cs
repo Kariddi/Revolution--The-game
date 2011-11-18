@@ -17,6 +17,7 @@ public class PlanetScript : MonoBehaviour {
 	private int planet_points = 50;
 	private bool destroyed = false;
 	private bool orbitant = false;
+	private ControllerScript game_controller;
 
     // Use this for initialization
     void Start()
@@ -25,6 +26,7 @@ public class PlanetScript : MonoBehaviour {
         original_position = transform.position;
         original_rotation = transform.rotation;
         rigidbody.isKinematic = true;
+		game_controller = GameObject.Find("Controller").GetComponent<ControllerScript>();
 	}
 
     // Update is called once per frame
@@ -37,13 +39,18 @@ public class PlanetScript : MonoBehaviour {
             pos.z = 0;
             transform.position = pos;
         }
+		else
+		{
+			CheckPlanetPosition();
+		}
     }
-
-    void OnBecameInvisible()
-    {
-        if (!to_launch)
-        {
-			if(!this.isDestroyed()){
+	
+	void CheckPlanetPosition()
+	{
+		if ((this.transform.position.x > game_controller.field_rectangle_size.x || 
+		    this.transform.position.y > game_controller.field_rectangle_size.y) &&
+		    !this.isDestroyed())
+		{
 				/* Show fail message. */
             	TextMesh text = GameObject.Find("InfoText").GetComponent<TextMesh>();
             	text.text = "Fail!";
@@ -61,10 +68,35 @@ public class PlanetScript : MonoBehaviour {
 						star.GetComponent<StarScript>().updateMultiplier();
 				}
             	GameObject.Destroy(this.gameObject);
+		}
+	}
+	
+  /*void OnBecameInvisible()
+   // {
+  //      if (!to_launch)
+  //      {
+//			if(!this.isDestroyed()){
+//				/* Show fail message. 
+ //           	TextMesh text = GameObject.Find("InfoText").GetComponent<TextMesh>();
+  //          	text.text = "Fail!";
+   //         	text.animation.Play("InformationAnimation");
+			
+//				/* Update the score.
+				GameObject.Find("Controller").GetComponent<ControllerScript>().updateScore(-rigidbody.mass  
+			           * GameObject.Find("Controller").GetComponent<ControllerScript>().getLostPlanetFactor()
+			           * getPlanetPoints());
+				Debug.Log("Score:" + GameObject.Find("Controller").GetComponent<ControllerScript>().getScore());
+			
+				/* Destroy the GameObject. 
+				foreach(GameObject star in GameObject.FindGameObjectsWithTag("Star")){
+						star.GetComponent<StarScript>().removeOrbitantPlanet(this.GetInstanceID());
+						star.GetComponent<StarScript>().updateMultiplier();
+				}
+            	GameObject.Destroy(this.gameObject);
 			}
         }
     }
-
+	 */
     IEnumerator WaitForAnimation(float wait_time)
     {
         yield return new WaitForSeconds(wait_time);
