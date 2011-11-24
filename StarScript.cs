@@ -5,6 +5,7 @@ using System.Collections;
 public class StarScript : MonoBehaviour {
 	
 	
+	public float star_launch_limit = 20.0f;
 	/* List containing planets orbitating around the star. */
 	private ArrayList orbitantPlanetsList = null;
 	

@@ -17,6 +17,7 @@ public class PlanetScript : MonoBehaviour {
 	private int planet_points = 50;
 	private bool destroyed = false;
 	private bool orbitant = false;
+	private bool launched = false;
 	private ControllerScript game_controller;
 
     // Use this for initialization
@@ -122,12 +123,37 @@ public class PlanetScript : MonoBehaviour {
     void OnMouseUp()
     {
         Vector3 mousePosition = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z));
-        Vector3 distance = transform.position - mousePosition;
-        distance.z = 0;
-        force = distance * impulse_strength;
-        rigidbody.AddForce(force, ForceMode.Impulse);
-        GameObject.Find("Controller").GetComponent<ControllerScript>().CreateNewPlanet();
-    }
+		if (launched)
+			return;
+		
+		if (PlanetPositionIsValid())
+		{
+			Vector3 distance = transform.position - mousePosition;
+        	distance.z = 0;
+        	force = distance * impulse_strength;
+        	rigidbody.AddForce(force, ForceMode.Impulse);
+    		launched = true;
+			GameObject.Find("Controller").GetComponent<ControllerScript>().CreateNewPlanet();
+		} else {
+			to_launch = true;
+			rigidbody.isKinematic = true;
+		}
+	}
+		
+	private bool PlanetPositionIsValid()
+	{
+		StarScript[] stars = FindObjectsOfType(typeof(StarScript)) as StarScript[];
+		Vector3 point;
+		foreach (StarScript curr_star in stars)
+		{
+			point = transform.position - curr_star.gameObject.transform.position;
+			float radius = Mathf.Sqrt(point.x*point.x + point.y*point.y);
+			if (radius < curr_star.star_launch_limit)
+				return false;
+		}
+		
+		return true;
+	}
 	
 	public void setDestroyed(){
 		destroyed = true;
